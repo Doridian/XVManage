@@ -1,0 +1,15 @@
+{
+	"nodes": [
+		{
+			"ip": "x",
+			"name": "x"
+		},
+		{
+			"ip": "y",
+			"name": "y"
+		}
+	],
+	"apiKey": "x",
+	"apiPSK": "x",
+	"apiIV": "x"
+}
