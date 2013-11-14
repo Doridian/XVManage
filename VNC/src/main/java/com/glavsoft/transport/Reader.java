@@ -150,6 +150,7 @@ public class Reader {
 		} catch (EOFException e) {
 			throw new ClosedConnectionException(e);
 		} catch (IOException e) {
+			e.printStackTrace();
 			throw new TransportException("Cannot read " + length + " bytes array", e);
 		}
 	}

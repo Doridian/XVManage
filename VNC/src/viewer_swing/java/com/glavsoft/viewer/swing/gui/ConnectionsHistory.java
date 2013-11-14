@@ -22,10 +22,6 @@ public class ConnectionsHistory implements Model {
     public static final String CONNECTIONS_HISTORY_ROOT_NODE = "com/glavsoft/viewer/connectionsHistory";
     public static final String NODE_HOST_NAME = "hostName";
     public static final String NODE_PORT_NUMBER = "portNumber";
-    public static final String NODE_SSH_USER_NAME = "sshUserName";
-    public static final String NODE_SSH_HOST_NAME = "sshHostName";
-    public static final String NODE_SSH_PORT_NUMBER = "sshPortNumber";
-    public static final String NODE_USE_SSH = "useSsh";
     public static final String NODE_PROTOCOL_SETTINGS = "protocolSettings";
     public static final String NODE_UI_SETTINGS = "uiSettings";
     private final Logger logger;
@@ -68,7 +64,7 @@ public class ConnectionsHistory implements Model {
 				Preferences node = connectionsHistoryNode.node(orderNum);
                 String hostName = node.get(NODE_HOST_NAME, null);
                 if (null == hostName) continue; // skip entries without hostName field
-                ConnectionParams cp = new ConnectionParams(hostName, node.getInt(NODE_PORT_NUMBER, 0));
+                ConnectionParams cp = new ConnectionParams(hostName, node.getInt(NODE_PORT_NUMBER, 0), false);
                 if (uniques.contains(cp)) continue; // skip duplicates
                 uniques.add(cp);
                 conns.put(num, cp);

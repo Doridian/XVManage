@@ -34,6 +34,7 @@ function vmVNC(name) {
         addAppletParam(applet, "Host", data.host);
         addAppletParam(applet, "Port", data.port);
         addAppletParam(applet, "Password", data.password);
+        addAppletParam(applet, "SSL", data.ssl ? "yes": "no");
 
         addAppletParam(applet, "OpenNewWindow", "yes");
         addAppletParam(applet, "AllowAppletInteractiveConnections", "no");

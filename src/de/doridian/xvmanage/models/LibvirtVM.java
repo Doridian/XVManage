@@ -96,6 +96,7 @@ public class LibvirtVM {
 		JSONObject result = new JSONObject();
 		result.put("host", node.getIp());
 		result.put("password", (String)res.get("password"));
+		result.put("ssl", ssl);
 		result.put("port", ((Number)res.get("port")).intValue());
 		return result.toJSONString();
 	}

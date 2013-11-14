@@ -24,8 +24,12 @@
 
 package com.glavsoft.viewer.swing;
 
-import com.glavsoft.viewer.*;
+import com.glavsoft.viewer.CancelConnectionException;
+import com.glavsoft.viewer.ConnectionErrorException;
+import com.glavsoft.viewer.ConnectionPresenter;
+import com.glavsoft.viewer.NetworkConnectionWorker;
 
+import javax.net.ssl.SSLSocketFactory;
 import javax.swing.*;
 import java.io.IOException;
 import java.net.Socket;
@@ -58,14 +62,19 @@ public class SwingNetworkConnectionWorker extends SwingWorker<Socket, String> im
         String message = "<html>Trying to connect to " + s + "</html>";
         logger.info(message.replaceAll("<[^<>]+?>", ""));
         publish(message);
+
         int port = connectionParams.getPortNumber();
         String host = connectionParams.hostName;
+		boolean useSSL = connectionParams.getUseSSL();
 
-        message = "Connecting to host " + host + ":" + port;
+        message = "Connecting to host " + host + ":" + port + (useSSL ? " (SSL)" : "");
         logger.info(message);
         publish(message);
 
-        return new Socket(host, port);
+        if(useSSL)
+        	return SSLSocketFactory.getDefault().createSocket(host, port);
+		else
+			return new Socket(host, port);
     }
 
     private String formatHostString(String hostName) {

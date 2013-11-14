@@ -56,6 +56,7 @@ public class ParametersHandler {
 	public static final String ARG_ALLOW_CLIPBOARD_TRANSFER = "AllowClipboardTransfer";
 	public static final String ARG_REMOTE_CHARSET = "RemoteCharset";
     public static final String ARG_ALLOW_APPLET_INTERACTIVE_CONNECTIONS = "AllowAppletInteractiveConnections";
+	public static final String ARG_USE_SSL = "ssl";
 
 	public static boolean isSeparateFrame;
     public static boolean allowAppletInteractiveConnections;
@@ -64,6 +65,7 @@ public class ParametersHandler {
 		parser.addOption(ARG_HELP, null, "Print this help.");
 		parser.addOption(ARG_HOST, "", "Server host name.");
 		parser.addOption(ARG_PORT, "0", "Port number.");
+		parser.addOption(ARG_USE_SSL, null, "Use SSL/TLS.");
 		parser.addOption(ARG_PASSWORD, null, "Password to the server.");
 		parser.addOption(ARG_SHOW_CONTROLS, null, "Set to \"No\" if you want to get rid of that " +
 				"button panel at the top. Default: \"Yes\".");
@@ -177,6 +179,7 @@ public class ParametersHandler {
         String fullScreenParam = pr.getParamByName(ARG_FULL_SCREEN);
 		String localPointerParam = pr.getParamByName(ARG_LOCAL_POINTER);
 		String convertToAsciiParam = pr.getParamByName(ARG_CONVERT_TO_ASCII);
+		String useSSL = pr.getParamByName(ARG_USE_SSL);
 
 		connectionParams.hostName = hostName;
         try {
@@ -252,6 +255,11 @@ public class ParametersHandler {
         uiSettings.setFullScreen(parseBooleanOrDefault(fullScreenParam, false));
         if (isGiven(fullScreenParam)) uiMask |= UiSettings.CHANGED_FULL_SCREEN;
 
+		if ("on".equalsIgnoreCase(useSSL) ||
+				"true".equalsIgnoreCase(useSSL) ||
+				"yes".equalsIgnoreCase(useSSL)) {
+			connectionParams.setUseSSL(true);
+		}
         if ("on".equalsIgnoreCase(localPointerParam) ||
 			"true".equalsIgnoreCase(localPointerParam) ||
 			"yes".equalsIgnoreCase(localPointerParam)) {

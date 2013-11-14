@@ -36,14 +36,18 @@ public class ConnectionParams implements Model {
 	public String hostName;
 	private int portNumber;
 
-	public ConnectionParams(String hostName, int portNumber) {
+	private boolean useSSL;
+
+	public ConnectionParams(String hostName, int portNumber, boolean useSSL) {
 		this.hostName = hostName;
 		this.portNumber = portNumber;
+		this.useSSL = useSSL;
 	}
 
 	public ConnectionParams(ConnectionParams cp) {
 		this.hostName = cp.hostName != null? cp.hostName: "";
 		this.portNumber = cp.portNumber;
+		this.useSSL = cp.useSSL;
 	}
 
 	public ConnectionParams() {
@@ -85,6 +89,14 @@ public class ConnectionParams implements Model {
         return 0 == portNumber ? DEFAULT_RFB_PORT : portNumber;
     }
 
+	public void setUseSSL(boolean useSSL) {
+		this.useSSL = useSSL;
+	}
+
+	public boolean getUseSSL() {
+		return true; // || useSSL;
+	}
+
     public void completeEmptyFieldsFrom(ConnectionParams from) {
         if (null == from) return;
 		if (Strings.isTrimmedEmpty(hostName) && ! Strings.isTrimmedEmpty(from.hostName)) {
@@ -105,6 +117,7 @@ public class ConnectionParams implements Model {
         return "ConnectionParams{" +
                 "hostName='" + hostName + '\'' +
                 ", portNumber=" + portNumber +
+				", useSSL=" + useSSL +
                 '}';
     }
 
@@ -113,7 +126,7 @@ public class ConnectionParams implements Model {
         if (null == obj || ! (obj instanceof ConnectionParams)) return false;
         if (this == obj) return true;
         ConnectionParams o = (ConnectionParams) obj;
-        return isEqualsNullable(hostName, o.hostName) && getPortNumber() == o.getPortNumber();
+        return isEqualsNullable(hostName, o.hostName) && getPortNumber() == o.getPortNumber() && getUseSSL() == o.getUseSSL();
     }
 
     private boolean isEqualsNullable(String one, String another) {
@@ -124,12 +137,13 @@ public class ConnectionParams implements Model {
     @Override
     public int hashCode() {
         long hash = (hostName != null? hostName.hashCode() : 0) +
-                portNumber * 17;
+                portNumber * 17 + (useSSL ? 33 : 0);
         return (int)hash;
     }
 
     public void clearFields() {
         hostName = "";
         portNumber = 0;
+		useSSL = false;
     }
 }
