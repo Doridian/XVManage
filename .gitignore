@@ -1,4 +1,6 @@
 /out
 /.idea
+/sign.bat
+/web/static/vnc.jar
 *.iml
 *.class
