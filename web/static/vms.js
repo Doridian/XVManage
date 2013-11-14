@@ -16,8 +16,32 @@ function vmAction(name, action) {
     });
 }
 
+function addAppletParam(applet, name, value) {
+    var param = document.createElement("param");
+    param.name = name;
+    param.value = value;
+    applet.appendChild(param);
+}
+
 function vmVNC(name) {
-    window.open("/ManageVM.do?action=vnc&vm=" + name, "_blank", "height=480,width=640,directories=no,toolbar=no,status=no,scrollbars=no,resizable=no,menubar=no,location=no");
+    $.getJSON("/ManageVM.do?action=vnc&vm=" + name, function(data) {
+        var applet = document.createElement("applet");
+        applet.archive = "static/tightvnc-jviewer.jar";
+        applet.code = "com.glavsoft.viewer.Viewer";
+        applet.width = "1";
+        applet.height = "1";
+
+        addAppletParam(applet, "Host", data.host);
+        addAppletParam(applet, "Port", data.port);
+        addAppletParam(applet, "Password", data.password);
+
+        addAppletParam(applet, "OpenNewWindow", "yes");
+        addAppletParam(applet, "AllowAppletInteractiveConnections", "no");
+
+        var appletContainer = document.getElementById("appletContainer");
+        appletContainer.innerHTML = "";
+        appletContainer.appendChild(applet);
+    });
 }
 
 $(document).ready(function() {

@@ -20,5 +20,6 @@
             <jsp:include page="vms_list.jsp"/>
             </tbody>
         </table>
+        <div id="appletContainer"></div>
     </jsp:body>
 </t:masterpage>

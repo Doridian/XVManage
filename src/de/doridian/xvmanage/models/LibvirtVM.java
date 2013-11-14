@@ -93,33 +93,10 @@ public class LibvirtVM {
 
 		res = XVMAPI.apiCall(node, res);
 
-		String vncPW = (String)res.get("password");
-		int vncPort = ((Number)res.get("port")).intValue();
-
-		return "<!DOCTYPE html><html><head>" +
-					"<title>VNC: " + getName() + "</title>" +
-					"<style type='text/css'>* { padding: 0; margin: 0; } body { overflow: hidden;  } body, applet { width: 100%; height: 100%; }</style>" +
-				"</head><body>" +
-					"<applet archive='/static/tightvnc-jviewer.jar' code='com.glavsoft.viewer.Viewer'>" +
-						"<param name='Host' value='" + node.getIp() + "' />" +
-						"<param name='Port' value='" + vncPort + "' />" +
-						"<param name='Password' value='" + vncPW + "' />" +
-						"<param name='OpenNewWindow' value='no' />" +
-						"<param name='ShowControls' value='yes' />" +
-						"<param name='ViewOnly' value='no' />" +
-						"<param name='AllowClipboardTransfer' value='yes' />" +
-						"<param name='RemoteCharset' value='standard' />" +
-						"<param name='ShareDesktop' value='yes' />" +
-						"<param name='AllowCopyRect' value='yes' />" +
-						"<param name='Encoding' value='Tight' />" +
-						"<param name='CompressionLevel' value='' />" +
-						"<param name='JpegImageQuality' value='' />" +
-						"<param name='LocalPointer' value='On' />" +
-						"<param name='ConvertToASCII' value='no' />" +
-						"<param name='colorDepth' value='' />" +
-						"<param name='ScalingFactor' value='100' />" +
-						"<param name='AllowAppletInteractiveConnections' value='no' />" +
-					"</applet>" +
-				"</body></html>";
+		JSONObject result = new JSONObject();
+		result.put("host", node.getIp());
+		result.put("password", (String)res.get("password"));
+		result.put("port", ((Number)res.get("port")).intValue());
+		return result.toJSONString();
 	}
 }
