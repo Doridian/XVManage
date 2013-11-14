@@ -94,7 +94,7 @@ public class ConnectionParams implements Model {
 	}
 
 	public boolean getUseSSL() {
-		return true; // || useSSL;
+		return useSSL;
 	}
 
     public void completeEmptyFieldsFrom(ConnectionParams from) {
