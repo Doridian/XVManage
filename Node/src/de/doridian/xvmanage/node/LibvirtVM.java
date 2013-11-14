@@ -185,8 +185,6 @@ public class LibvirtVM {
 			OutputStream outputStream = sock.getOutputStream();
 			BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sock.getInputStream()));
 
-			ssl = false;
-
 			outputStream.write(("{\"daddr\":\"127.0.0.1\", \"dport\":" + getVncPort() + ", \"password\":\"" + vncPW + "\", \"ws\":false, \"tls\":" + (ssl ? "true" : "false") + "}\r\n").getBytes());
 			outputStream.flush();
 

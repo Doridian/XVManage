@@ -26,7 +26,7 @@ function addAppletParam(applet, name, value) {
 function vmVNC(name) {
     $.getJSON("/ManageVM.do?action=vnc&vm=" + name, function(data) {
         var applet = document.createElement("applet");
-        applet.archive = "static/tightvnc-jviewer.jar";
+        applet.archive = "static/vnc.jar";
         applet.code = "com.glavsoft.viewer.Viewer";
         applet.width = "1";
         applet.height = "1";
