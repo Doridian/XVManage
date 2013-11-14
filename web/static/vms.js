@@ -17,7 +17,7 @@ function vmAction(name, action) {
 }
 
 function vmVNC(name) {
-    window.open("/ManageVM.do?action=vnc&vm=" + name, "_blank", "height=768,width=1024,directories=no,toolbar=no,status=no,scrollbars=no,resizable=no,menubar=no,location=no");
+    window.open("/ManageVM.do?action=vnc&vm=" + name, "_blank", "height=480,width=640,directories=no,toolbar=no,status=no,scrollbars=no,resizable=no,menubar=no,location=no");
 }
 
 $(document).ready(function() {

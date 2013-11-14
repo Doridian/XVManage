@@ -1,1 +1,0 @@
-var INCLUDE_URI = "/static/vnc/";

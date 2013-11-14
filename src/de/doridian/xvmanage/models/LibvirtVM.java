@@ -96,29 +96,30 @@ public class LibvirtVM {
 		String vncPW = (String)res.get("password");
 		int vncPort = ((Number)res.get("port")).intValue();
 
-		return
-				"<!DOCTYPE html><html><head>" +
-						"<title>VNC: " + getName() + "</title>" +
-						"<script src='/static/vnc_include_path.js' type='text/javascript'></script>" +
-						"<script src='/static/vnc/util.js' type='text/javascript'></script>" +
-						"<script src='/static/vnc/ui.js' type='text/javascript'></script>" +
-						"<link rel='stylesheet' href='/static/vnc/base.css' title='plain'>" +
-						"</head><body style='margin: 0px; overflow: hidden;'>" +
-						"<div id='noVNC_screen'>" +
-						"<div id='noVNC_status_bar' class='noVNC_status_bar' style='margin-top: 0px;'>" +
-						"<table border=0 width='100%'><tr>" +
-						"<td><div id='noVNC_status'>Loading</div></td>" +
-						"<td width='1%'><div id='noVNC_buttons'>" +
-						"<input type=button value='Send CtrlAltDel' id='sendCtrlAltDelButton'>" +
-						"</div></td>" +
-						"</tr></table>" +
-						"</div>" +
-						"<canvas id='noVNC_canvas' width='1024px' height='768px'>" +
-						"Canvas not supported." +
-						"</canvas>" +
-						"</div>" +
-						"<script type='text/javascript'>var VNC_HOST = '" + node.getIp() + "'; var VNC_PASSWORD = '" + vncPW + "'; var VNC_PORT = " + vncPort + ";</script>" +
-						"<script src='/static/vncapp.js' type='text/javascript'></script>" +
-						"</body></html>";
+		return "<!DOCTYPE html><html><head>" +
+					"<title>VNC: " + getName() + "</title>" +
+					"<style type='text/css'>* { padding: 0; margin: 0; } body { overflow: hidden;  } body, applet { width: 100%; height: 100%; }</style>" +
+				"</head><body>" +
+					"<applet archive='/static/tightvnc-jviewer.jar' code='com.glavsoft.viewer.Viewer'>" +
+						"<param name='Host' value='" + node.getIp() + "' />" +
+						"<param name='Port' value='" + vncPort + "' />" +
+						"<param name='Password' value='" + vncPW + "' />" +
+						"<param name='OpenNewWindow' value='no' />" +
+						"<param name='ShowControls' value='yes' />" +
+						"<param name='ViewOnly' value='no' />" +
+						"<param name='AllowClipboardTransfer' value='yes' />" +
+						"<param name='RemoteCharset' value='standard' />" +
+						"<param name='ShareDesktop' value='yes' />" +
+						"<param name='AllowCopyRect' value='yes' />" +
+						"<param name='Encoding' value='Tight' />" +
+						"<param name='CompressionLevel' value='' />" +
+						"<param name='JpegImageQuality' value='' />" +
+						"<param name='LocalPointer' value='On' />" +
+						"<param name='ConvertToASCII' value='no' />" +
+						"<param name='colorDepth' value='' />" +
+						"<param name='ScalingFactor' value='100' />" +
+						"<param name='AllowAppletInteractiveConnections' value='no' />" +
+					"</applet>" +
+				"</body></html>";
 	}
 }
