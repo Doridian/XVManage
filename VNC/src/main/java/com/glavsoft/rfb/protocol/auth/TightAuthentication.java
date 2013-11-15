@@ -24,8 +24,6 @@
 
 package com.glavsoft.rfb.protocol.auth;
 
-import java.util.logging.Logger;
-
 import com.glavsoft.exceptions.FatalException;
 import com.glavsoft.exceptions.TransportException;
 import com.glavsoft.exceptions.UnsupportedSecurityTypeException;
@@ -92,7 +90,6 @@ public class TightAuthentication extends AuthHandler {
 		if (tunnelsCount > 0) {
 			for (int i = 0; i < tunnelsCount; ++i) {
 				RfbCapabilityInfo rfbCapabilityInfo = new RfbCapabilityInfo(reader);
-				Logger.getLogger("com.glavsoft.rfb.protocol.auth").fine(rfbCapabilityInfo.toString());
 			}
 			writer.writeInt32(0); // NOTUNNEL
 		}
@@ -131,7 +128,6 @@ public class TightAuthentication extends AuthHandler {
 		for (int i = 0; i < authCount; ++i) {
 			RfbCapabilityInfo rfbCapabilityInfo = new RfbCapabilityInfo(reader);
 			cap[i] = (byte) rfbCapabilityInfo.getCode();
-			Logger.getLogger("com.glavsoft.rfb.protocol.auth").fine(rfbCapabilityInfo.toString());
 		}
 		AuthHandler authHandler = null;
 		if (authCount > 0) {
@@ -146,7 +142,6 @@ public class TightAuthentication extends AuthHandler {
     	} else {
     		authHandler = SecurityType.getAuthHandlerById(SecurityType.NONE_AUTHENTICATION.getId());
     	}
-		Logger.getLogger("com.glavsoft.rfb.protocol.auth").info("Auth capability accepted: " + authHandler.getName());
 		authHandler.authenticate(reader, writer, authCaps, passwordRetriever);
 	}
 

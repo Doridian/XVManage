@@ -41,12 +41,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.jar.Attributes;
 import java.util.jar.Manifest;
-import java.util.logging.*;
 
 @SuppressWarnings("serial")
 public class Viewer extends JApplet implements Runnable, WindowListener {
 
-	private Logger logger;
     private int paramsMask;
     private boolean allowAppletInteractiveConnections;
 
@@ -68,6 +66,7 @@ public class Viewer extends JApplet implements Runnable, WindowListener {
 			printUsage(parser.optionsUsage());
 			System.exit(0);
 		}
+
 		Viewer viewer = new Viewer(parser);
 		SwingUtilities.invokeLater(viewer);
 	}
@@ -83,7 +82,6 @@ public class Viewer extends JApplet implements Runnable, WindowListener {
 	}
 
 	public Viewer() {
-        logger = Logger.getLogger(getClass().getName());
 		connectionParams = new ConnectionParams();
 		settings = ProtocolSettings.getDefaultSettings();
 		uiSettings = new UiSettings();
@@ -91,33 +89,13 @@ public class Viewer extends JApplet implements Runnable, WindowListener {
 
 	private Viewer(Parser parser) {
 		this();
-        setLoggingLevel(parser.isSet(ParametersHandler.ARG_VERBOSE) ? Level.FINE :
-                parser.isSet(ParametersHandler.ARG_VERBOSE_MORE) ? Level.FINER :
-                        Level.INFO);
 
         paramsMask = ParametersHandler.completeSettingsFromCLI(parser, connectionParams, settings, uiSettings);
 		passwordFromParams = parser.getValueFor(ParametersHandler.ARG_PASSWORD);
-		logger.info("TightVNC Viewer version " + ver());
+		allowAppletInteractiveConnections = ParametersHandler.allowAppletInteractiveConnections;
+
 		isApplet = false;
 	}
-
-    private void setLoggingLevel(Level levelToSet) {
-        final Logger appLogger = Logger.getLogger("com.glavsoft");
-        appLogger.setLevel(levelToSet);
-        ConsoleHandler ch = null;
-        for (Handler h : appLogger.getHandlers()) {
-            if (h instanceof ConsoleHandler) {
-                ch = (ConsoleHandler) h;
-                break;
-            }
-        }
-        if (null == ch) {
-            ch = new ConsoleHandler();
-            appLogger.addHandler(ch);
-        }
-//        ch.setFormatter(new SimpleFormatter());
-        ch.setLevel(levelToSet);
-    }
 
 
     @Override
@@ -138,11 +116,9 @@ public class Viewer extends JApplet implements Runnable, WindowListener {
     public void closeApp() {
         if (connectionPresenter != null) {
             connectionPresenter.cancelConnection();
-            logger.info("Connections cancelled.");
         }
         if (isApplet) {
             if ( ! isAppletStopped) {
-                logger.severe("Applet is stopped.");
                 isAppletStopped  = true;
                 repaint();
                 stop();
@@ -181,7 +157,7 @@ public class Viewer extends JApplet implements Runnable, WindowListener {
         try {
             SwingUtilities.invokeAndWait(this);
         } catch (Exception e) {
-            logger.severe(e.getMessage());
+            e.printStackTrace();
         }
     }
 
@@ -190,18 +166,9 @@ public class Viewer extends JApplet implements Runnable, WindowListener {
 		super.start();
 	}
 
-    private boolean checkJsch() {
-        try {
-            Class.forName("com.jcraft.jsch.JSch");
-            return true;
-        } catch (ClassNotFoundException e) {
-            return false;
-        }
-    }
-
     @Override
 	public void run() {
-        final boolean allowInteractive = allowAppletInteractiveConnections || ! isApplet;
+        final boolean allowInteractive = allowAppletInteractiveConnections; //|| ! isApplet;
         connectionPresenter = new ConnectionPresenter(allowInteractive);
         connectionPresenter.addModel("ConnectionParamsModel", connectionParams);
         final ConnectionView connectionView = new ConnectionView(

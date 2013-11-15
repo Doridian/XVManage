@@ -33,7 +33,6 @@ import com.glavsoft.viewer.swing.gui.ConnectionView;
 import com.glavsoft.viewer.swing.gui.ConnectionsHistory;
 
 import java.net.Socket;
-import java.util.logging.Logger;
 
 /**
  * @author dime at tightvnc.com
@@ -51,7 +50,6 @@ public class ConnectionPresenter extends Presenter {
     private ConnectionsHistory connectionsHistory;
     private ProtocolSettings rfbSettings;
     private UiSettings uiSettings;
-    private final Logger logger;
     private RfbConnectionWorker rfbConnectionWorker;
     private AbstractConnectionWorkerFactory connectionWorkerFactory;
     private NetworkConnectionWorker networkConnectionWorker;
@@ -59,7 +57,6 @@ public class ConnectionPresenter extends Presenter {
 
     public ConnectionPresenter(boolean allowInteractive) {
         this.allowInteractive = allowInteractive;
-        logger = Logger.getLogger(getClass().getName());
     }
 
     public void startConnection(ProtocolSettings rfbSettings, UiSettings uiSettings, int paramSettingsMask)
@@ -141,7 +138,6 @@ public class ConnectionPresenter extends Presenter {
     }
 
     public void successfulNetworkConnection(Socket workingSocket) { // EDT
-        logger.info("Connected");
         showMessage("Connected");
         rfbConnectionWorker = connectionWorkerFactory.createRfbConnectionWorker();
         rfbConnectionWorker.setWorkingSocket(workingSocket);

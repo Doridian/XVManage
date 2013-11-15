@@ -48,7 +48,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
 
 public class SwingViewerWindow implements IChangeSettingsListener {
 	public static final int FS_SCROLLING_ACTIVE_BORDER = 20;
@@ -390,7 +389,7 @@ public class SwingViewerWindow implements IChangeSettingsListener {
 			scroller.setBorder(new EmptyBorder(0, 0, 0, 0));
 			new FullscreenBorderDetectionThread(frame).start();
 		} catch (Exception ex) {
-            Logger.getLogger(this.getClass().getName()).info("Cannot switch into FullScreen mode: " + ex.getMessage());
+            ex.printStackTrace();
 			return false;
 		}
         return true;

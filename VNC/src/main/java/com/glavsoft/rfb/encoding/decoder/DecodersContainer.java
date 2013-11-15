@@ -30,7 +30,6 @@ import com.glavsoft.rfb.encoding.EncodingType;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * Decoders container class
@@ -74,8 +73,7 @@ public class DecodersContainer {
 	}
 
 	private void logError(EncodingType enc, Exception e) {
-		Logger.getLogger(this.getClass().getName()).severe("Can not instantiate decoder for encoding type '" +
-				enc.getName() + "' " + e.getMessage());
+
 	}
 
 	public Decoder getDecoderByType(EncodingType type) {

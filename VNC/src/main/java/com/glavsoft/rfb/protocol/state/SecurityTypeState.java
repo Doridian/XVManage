@@ -33,8 +33,6 @@ import com.glavsoft.rfb.protocol.auth.AuthHandler;
 import com.glavsoft.rfb.protocol.auth.SecurityType;
 import com.glavsoft.utils.Strings;
 
-import java.util.logging.Logger;
-
 public class SecurityTypeState extends ProtocolState {
 
 	public SecurityTypeState(ProtocolContext context) {
@@ -54,13 +52,10 @@ public class SecurityTypeState extends ProtocolState {
 			// throw exception with reason
 			throw new UnsupportedSecurityTypeException(reader.readString());
 		byte[] secTypes = reader.readBytes(secTypesNum);
-        Logger.getLogger(getClass().getName()).info("Security Types received (" + secTypesNum + "): "
-                + Strings.toString(secTypes));
 		AuthHandler typeSelected = selectAuthHandler(
 				secTypes, context.getSettings().authCapabilities);
 		setUseSecurityResult(typeSelected);
 		writer.writeByte(typeSelected.getId());
-        Logger.getLogger(getClass().getName()).info("Security Type accepted: " + typeSelected.getName());
 
 		changeStateTo(new AuthenticationState(context, typeSelected));
 	}

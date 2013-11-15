@@ -30,7 +30,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.logging.Logger;
 
 /**
  * @author dime at tightvnc.com
@@ -38,7 +37,6 @@ import java.util.logging.Logger;
 public class Presenter {
     private final Map<String, View> registeredViews;
     private final Map<String, Model> registeredModels;
-    static private Logger logger = Logger.getLogger(Presenter.class.getName());
     private Throwable savedInvocationTargetException;
 
     public Presenter() {
@@ -67,8 +65,6 @@ public class Presenter {
         Model model = registeredModels.get(modelName);
         if (modelName != null) {
             populateFrom(modelName, model);
-        } else {
-            logger.finer("Cannot find model: " + modelName);
         }
     }
 
@@ -79,8 +75,6 @@ public class Presenter {
                 String propertyName = m.getName().substring(3);
                 try {
                     final Object property = m.invoke(model);
-                    logger.finest("Load: " + modelName + ".get" + propertyName + "() # => " + property +
-                        "  type: " + m.getReturnType());
                     setViewProperty(propertyName, property, m.getReturnType()); // TODO this can set savedInvocationTargetEx, so what to do whith it?
                 } catch (IllegalAccessException e) {
                     // nop
@@ -119,7 +113,6 @@ public class Presenter {
                     try {
                         final Object viewProperty = getViewProperty(propertyName);
                         m.invoke(model, viewProperty);
-                        logger.finest("Save: " + modelName + ".set" + propertyName + "( " + viewProperty + " )");
                     } catch (IllegalAccessException e) {
                         // nop
                     } catch (InvocationTargetException e) {
@@ -143,14 +136,12 @@ public class Presenter {
 
     public Object getViewProperty(String propertyName) throws PropertyNotFoundException {
         savedInvocationTargetException = null;
-        logger.finest("get" + propertyName + "()");
         for (Map.Entry<String, View> entry : registeredViews.entrySet()) {
             String viewName = entry.getKey();
             View view = entry.getValue();
             try {
                 Method getter = view.getClass().getMethod("get" + propertyName, new Class[0]);
                 final Object res = getter.invoke(view);
-                logger.finest("----from view: " + viewName + ".get" + propertyName + "() # +> " + res);
                 return res;
                 // oops, only first getter will be found TODO?
             } catch (NoSuchMethodException e) {
@@ -167,13 +158,11 @@ public class Presenter {
 
     public Object getModelProperty(String propertyName) {
         savedInvocationTargetException = null;
-        logger.finest("get" + propertyName + "()");
         for (String modelName : registeredModels.keySet()) {
             Model model = registeredModels.get(modelName);
             try {
                 Method getter = model.getClass().getMethod("get" + propertyName, new Class[0]);
                 final Object res = getter.invoke(model);
-                logger.finest("----from model: " + modelName + ".get" + propertyName + "() # +> " + res);
                 return res;
                 // oops, only first getter will be found TODO?
             } catch (NoSuchMethodException e) {
@@ -195,14 +184,12 @@ public class Presenter {
 
     public void setViewProperty(String propertyName, Object newValue, Class<?> valueType) {
         savedInvocationTargetException = null;
-        logger.finest("set" + propertyName + "( " + newValue + " ) type: " + valueType);
         for (Map.Entry<String, View> entry : registeredViews.entrySet()) {
             String viewName = entry.getKey();
             View view = entry.getValue();
             try {
                 Method setter = view.getClass().getMethod("set" + propertyName, valueType);
                 setter.invoke(view, newValue);
-                logger.finest("----to view: " + viewName + ".set" + propertyName + "( " + newValue + " )");
             } catch (NoSuchMethodException e) {
                 // nop
             } catch (InvocationTargetException e) {
@@ -238,14 +225,12 @@ public class Presenter {
 
     public void setModelProperty(String propertyName, Object newValue, Class<?> valueType) {
         savedInvocationTargetException = null;
-        logger.finest("set" + propertyName + "( " + newValue + " )");
         for (Map.Entry<String, Model> entry : registeredModels.entrySet()) {
             String modelName = entry.getKey();
             Model model = entry.getValue();
             try {
                 Method method = model.getClass().getMethod("set" + propertyName, valueType);
                 method.invoke(model, newValue);
-                logger.finest("----for model: " + modelName);
             } catch (NoSuchMethodException e) {
                 // nop
             } catch (InvocationTargetException e) {

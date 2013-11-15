@@ -30,7 +30,6 @@ import com.glavsoft.transport.Writer;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.Logger;
 
 public class SenderTask implements Runnable {
 
@@ -67,7 +66,6 @@ public class SenderTask implements Runnable {
 			} catch (InterruptedException e) {
 				// nop
 			} catch (TransportException e) {
-				Logger.getLogger(getClass().getName()).severe("Close session: " + e.getMessage());
 				if (isRunning) {
 					protocolContext.cleanUpSession("Connection closed");
 				}

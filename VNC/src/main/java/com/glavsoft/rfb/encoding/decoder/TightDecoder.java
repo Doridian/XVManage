@@ -29,7 +29,6 @@ import com.glavsoft.drawing.Renderer;
 import com.glavsoft.exceptions.TransportException;
 import com.glavsoft.transport.Reader;
 
-import java.util.logging.Logger;
 import java.util.zip.DataFormatException;
 import java.util.zip.Inflater;
 
@@ -37,8 +36,6 @@ import java.util.zip.Inflater;
  * Tight protocol extention decoder
  */
 public class TightDecoder extends Decoder {
-	private static Logger logger = Logger.getLogger("com.glavsoft.rfb.encoding.decoder");
-
     private static final int FILL_TYPE = 0x08;
     private static final int JPEG_TYPE = 0x09;
 
@@ -233,7 +230,6 @@ public class TightDecoder extends Decoder {
 		try {
 			decoder.inflate(buffer, 0, expectedLength);
 		} catch (DataFormatException e) {
-			logger.throwing("TightDecoder", "readCompressedData", e);
 			throw new TransportException("cannot inflate tight compressed data", e);
 		}
 		return buffer;

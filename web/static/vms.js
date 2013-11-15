@@ -17,31 +17,55 @@ function vmAction(name, action) {
 }
 
 function addAppletParam(applet, name, value) {
-    var param = document.createElement("param");
-    param.name = name;
-    param.value = value;
+    var param = document.createElement("argument");
+    param.appendChild(document.createTextNode("-" + name + "=" + value));
+    //param.setAttribute("name", name);
+    //param.setAttribute("value", value);
     applet.appendChild(param);
 }
 
 function vmVNC(name) {
     $.getJSON("/ManageVM.do?action=vnc&vm=" + name, function(data) {
-        var applet = document.createElement("applet");
-        applet.archive = "static/vnc.jar";
-        applet.code = "com.glavsoft.viewer.Viewer";
-        applet.width = "1";
-        applet.height = "1";
+        var information = document.createElement("information");
+        var title = document.createElement("title");
+        title.appendChild(document.createTextNode("TightVNC viewer"));
+        var vendor = document.createElement("vendor");
+        vendor.appendChild(document.createTextNode("Mark Dietzer"));
+        information.appendChild(title);
+        information.appendChild(vendor);
 
-        addAppletParam(applet, "Host", data.host);
-        addAppletParam(applet, "Port", data.port);
+        var resource = document.createElement("resources");
+        var java = document.createElement("java");
+        java.setAttribute("version", "1.6+");
+        var jar = document.createElement("jar");
+        jar.setAttribute("href", "vnc.jar");
+        jar.setAttribute("main", "true");
+        resource.appendChild(java);
+        resource.appendChild(jar);
+
+        var security = document.createElement("security");
+        var allPermissions = document.createElement("all-permissions");
+        security.appendChild(allPermissions);
+
+        var applet = document.createElement("application-desc");
+
+        addAppletParam(applet, "host", data.host);
+        addAppletParam(applet, "port", data.port);
         addAppletParam(applet, "Password", data.password);
         addAppletParam(applet, "SSL", data.ssl ? "yes": "no");
 
-        addAppletParam(applet, "OpenNewWindow", "yes");
+        addAppletParam(applet, "OpenNewWindow", "no");
         addAppletParam(applet, "AllowAppletInteractiveConnections", "no");
 
-        var appletContainer = document.getElementById("appletContainer");
-        appletContainer.innerHTML = "";
-        appletContainer.appendChild(applet);
+        var appletContainer = document.implementation.createDocument("", "jnlp");
+        appletContainer.documentElement.setAttribute("codebase", document.location.protocol + "//" + document.location.host + "/static/");
+        appletContainer.documentElement.setAttribute("spec", "1.0+");
+        appletContainer.documentElement.appendChild(information);
+        appletContainer.documentElement.appendChild(security);
+        appletContainer.documentElement.appendChild(resource);
+        appletContainer.documentElement.appendChild(applet);
+        var blob = new Blob([new XMLSerializer().serializeToString(appletContainer)], {type: "application/x-java-jnlp-file;charset=utf-8"});
+        saveAs(blob, "vnc.jnlp");
     });
 }
 

@@ -3,6 +3,8 @@
 <jsp:useBean id="loggedInUser" class="de.doridian.xvmanage.models.User" scope="session"/>
 <t:masterpage title="VMs">
     <jsp:attribute name="addtitional_head">
+        <script type="text/javascript" src="static/Blob.js"></script>
+        <script type="text/javascript" src="static/FileSaver.js"></script>
         <script type="text/javascript" src="static/vms.js"></script>
     </jsp:attribute>
     <jsp:body>

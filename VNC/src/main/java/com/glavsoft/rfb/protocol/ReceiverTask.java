@@ -42,7 +42,6 @@ import com.glavsoft.transport.Reader;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.logging.Logger;
 
 public class ReceiverTask implements Runnable {
 	private static final byte FRAMEBUFFER_UPDATE = 0;
@@ -51,7 +50,6 @@ public class ReceiverTask implements Runnable {
 	private static final byte SERVER_CUT_TEXT = 3;
 
 
-	private static Logger logger = Logger.getLogger("com.glavsoft.rfb.protocol.ReceiverTask");
 	private final Reader reader;
 	private volatile boolean isRunning = false;
 	private Renderer renderer;
@@ -85,39 +83,32 @@ public class ReceiverTask implements Runnable {
 				byte messageId = reader.readByte();
 				switch (messageId) {
 				case FRAMEBUFFER_UPDATE:
-//					logger.fine("Server message: FramebufferUpdate (0)");
 					framebufferUpdateMessage();
 					break;
 				case SET_COLOR_MAP_ENTRIES:
-					logger.severe("Server message SetColorMapEntries is not implemented. Skip.");
 					setColorMapEntries();
 					break;
 				case BELL:
-					logger.fine("Server message: Bell");
 					System.out.print("\0007");
 				    System.out.flush();
 					break;
 				case SERVER_CUT_TEXT:
-					logger.fine("Server message: CutText (3)");
 					serverCutText();
 					break;
 				default:
-					logger.severe("Unsupported server message. Id = " + messageId);
+
 				}
 			} catch (TransportException e) {
 				if (isRunning) {
-                    logger.severe("Close session: " + e.getMessage());
 					context.cleanUpSession("Connection closed.");
 				}
 				stopTask();
 			} catch (ProtocolException e) {
-				logger.severe(e.getMessage());
 				if (isRunning) {
 					context.cleanUpSession(e.getMessage() + "\nConnection closed.");
 				}
 				stopTask();
 			} catch (CommonException e) {
-				logger.severe(e.getMessage());
 				if (isRunning) {
 					context.cleanUpSession("Connection closed..");
 				}
@@ -160,7 +151,6 @@ public class ReceiverTask implements Runnable {
 			rect.fill(reader);
 
 			Decoder decoder = decoders.getDecoderByType(rect.getEncodingType());
-			logger.finest(rect.toString() + (0 == numberOfRectangles ? "\n---" : ""));
 			if (decoder != null) {
 				decoder.decode(reader, renderer, rect);
 				repaintController.repaintBitmap(rect);
@@ -187,9 +177,7 @@ public class ReceiverTask implements Runnable {
 				needSendPixelFormat = false;
 				context.setPixelFormat(pixelFormat);
 				context.sendMessage(new SetPixelFormatMessage(pixelFormat));
-				logger.fine("sent: "+pixelFormat);
 				context.sendRefreshMessage();
-				logger.fine("sent: nonincremental fb update");
 			} else {
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);
 			}

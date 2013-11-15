@@ -38,21 +38,17 @@ import java.security.AccessControlException;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 
 public class SwingNetworkConnectionWorker extends SwingWorker<Socket, String> implements NetworkConnectionWorker {
     public static final int MAX_HOSTNAME_LENGTH_FOR_MESSAGES = 40;
     private final JFrame parentWindow;
-    private Logger logger;
     private ConnectionParams connectionParams;
     private ConnectionPresenter presenter;
 
 
     public SwingNetworkConnectionWorker(JFrame parentWindow) {
         this.parentWindow = parentWindow;
-        logger = Logger.getLogger(getClass().getName());
     }
 
     @Override
@@ -60,7 +56,6 @@ public class SwingNetworkConnectionWorker extends SwingWorker<Socket, String> im
         String s = "<b>" +connectionParams.hostName + "</b>:" + connectionParams.getPortNumber();
 
         String message = "<html>Trying to connect to " + s + "</html>";
-        logger.info(message.replaceAll("<[^<>]+?>", ""));
         publish(message);
 
         int port = connectionParams.getPortNumber();
@@ -68,7 +63,6 @@ public class SwingNetworkConnectionWorker extends SwingWorker<Socket, String> im
 		boolean useSSL = connectionParams.getUseSSL();
 
         message = "Connecting to host " + host + ":" + port + (useSSL ? " (SSL)" : "");
-        logger.info(message);
         publish(message);
 
         if(useSSL)
@@ -97,11 +91,9 @@ public class SwingNetworkConnectionWorker extends SwingWorker<Socket, String> im
             final Socket socket = get();
             presenter.successfulNetworkConnection(socket);
         } catch (CancellationException e) {
-            logger.info("Cancelled");
             presenter.showMessage("Cancelled");
             presenter.connectionFailed();
         } catch (InterruptedException e) {
-            logger.info("Interrupted");
             presenter.showMessage("Interrupted");
             presenter.connectionFailed();
         } catch (ExecutionException e) {
@@ -109,33 +101,18 @@ public class SwingNetworkConnectionWorker extends SwingWorker<Socket, String> im
             try {
                 throw e.getCause();
             } catch (UnknownHostException uhe) {
-                logger.severe("Unknown host: " + connectionParams.hostName);
                 errorMessage = "Unknown host: '" + formatHostString(connectionParams.hostName) + "'";
             } catch (IOException ioe) {
-                logger.severe("Couldn't connect to '" + connectionParams.hostName +
-                        ":" + connectionParams.getPortNumber() + "':\n" + ioe.getMessage());
-                logger.log(Level.FINEST, "Couldn't connect to '" + connectionParams.hostName +
-                        ":" + connectionParams.getPortNumber() + "':\n" + ioe.getMessage(), ioe);
                 errorMessage = "Couldn't connect to '" + formatHostString(connectionParams.hostName) +
                         ":" + connectionParams.getPortNumber() + "':\n" + ioe.getMessage();
             } catch (CancelConnectionException cce) {
-                logger.severe("Cancelled: " + cce.getMessage());
+
             } catch (AccessControlException ace) {
-                logger.severe("Couldn't connect to: " +
-                        connectionParams.hostName + ":" + connectionParams.getPortNumber() +
-                        ": " + ace.getMessage());
-                logger.log(Level.FINEST, "Couldn't connect to: " +
-                        connectionParams.hostName + ":" + connectionParams.getPortNumber() +
-                        ": " + ace.getMessage(), ace);
                 errorMessage = "Access control error";
             } catch (ConnectionErrorException cee) {
-                logger.severe(cee.getMessage() + " host: " +
-                        connectionParams.hostName + ":" + connectionParams.getPortNumber());
                 errorMessage = cee.getMessage() + "\nHost: " +
                     formatHostString(connectionParams.hostName) + ":" + connectionParams.getPortNumber();
             } catch (Throwable throwable) {
-                logger.log(Level.FINEST, "Couldn't connect to '" + formatHostString(connectionParams.hostName) +
-                        ":" + connectionParams.getPortNumber() + "':\n" + throwable.getMessage(), throwable);
                 errorMessage = "Couldn't connect to '" + formatHostString(connectionParams.hostName) +
                         ":" + connectionParams.getPortNumber() + "':\n" + throwable.getMessage();
             }

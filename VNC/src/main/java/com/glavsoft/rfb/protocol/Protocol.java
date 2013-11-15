@@ -38,11 +38,8 @@ import com.glavsoft.rfb.protocol.state.ProtocolState;
 import com.glavsoft.transport.Reader;
 import com.glavsoft.transport.Writer;
 
-import java.util.logging.Logger;
-
 public class Protocol implements ProtocolContext, IChangeSettingsListener {
 	private ProtocolState state;
-	private final Logger logger;
 	private final IPasswordRetriever passwordRetriever;
 	private final ProtocolSettings settings;
 	private int fbWidth;
@@ -72,7 +69,6 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 		decoders = new DecodersContainer();
 		decoders.instantiateDecodersWhenNeeded(settings.encodings);
 		state = new HandshakeState(this);
-        logger = Logger.getLogger(getClass().getName());
     }
 
 	@Override
@@ -174,7 +170,6 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
         correctServerPixelFormat();
 		setPixelFormat(createPixelFormat(settings));
 		sendMessage(new SetPixelFormatMessage(pixelFormat));
-		logger.fine("sent: " + pixelFormat);
 
 		sendSupportedEncodingsMessage(settings);
 		settings.addListener(this); // to support pixel format (color depth), and encodings changes
@@ -217,7 +212,6 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 		decoders.instantiateDecodersWhenNeeded(settings.encodings);
 		SetEncodingsMessage encodingsMessage = new SetEncodingsMessage(settings.encodings);
 		sendMessage(encodingsMessage);
-		logger.fine("sent: " + encodingsMessage.toString());
 	}
 
 	/**
@@ -258,7 +252,6 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 	@Override
 	public void sendRefreshMessage() {
 		sendMessage(new FramebufferUpdateRequestMessage(0, 0, fbWidth, fbHeight, false));
-		logger.fine("sent: full FB Refresh");
 	}
 
 	@Override

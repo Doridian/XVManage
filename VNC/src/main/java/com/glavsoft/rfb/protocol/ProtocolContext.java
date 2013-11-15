@@ -31,8 +31,6 @@ import com.glavsoft.rfb.protocol.state.ProtocolState;
 import com.glavsoft.transport.Reader;
 import com.glavsoft.transport.Writer;
 
-import java.util.logging.Logger;
-
 public interface ProtocolContext {
 
 	void changeStateTo(ProtocolState state);

@@ -28,7 +28,6 @@ import com.glavsoft.exceptions.TransportException;
 import com.glavsoft.exceptions.UnsupportedProtocolVersionException;
 import com.glavsoft.rfb.protocol.ProtocolContext;
 
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -58,7 +57,6 @@ public class HandshakeState extends ProtocolState {
 
 	private void handshake() throws TransportException, UnsupportedProtocolVersionException {
 		String protocolString = reader.readString(PROTOCOL_STRING_LENGTH);
-        Logger.getLogger(getClass().getName()).info("Server sent protocol string: " + protocolString.substring(0, protocolString.length() - 1));
 		Pattern pattern = Pattern.compile(PROTOCOL_STRING_REGEXP);
 		final Matcher matcher = pattern.matcher(protocolString);
 		if ( ! matcher.matches())
@@ -91,7 +89,6 @@ public class HandshakeState extends ProtocolState {
 			throw new UnsupportedProtocolVersionException(
 					"Unsupported protocol version: " + protocolString);
 		writer.write(("RFB 00" + major + ".00" + minor + "\n").getBytes());
-        Logger.getLogger(getClass().getName()).info("Set protocol version to: " + context.getProtocolVersion());
 	}
 
 }

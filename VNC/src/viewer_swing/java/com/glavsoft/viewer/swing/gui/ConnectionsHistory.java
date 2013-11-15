@@ -10,7 +10,6 @@ import com.glavsoft.viewer.UiSettingsData;
 import java.io.*;
 import java.security.AccessControlException;
 import java.util.*;
-import java.util.logging.Logger;
 import java.util.prefs.BackingStoreException;
 import java.util.prefs.Preferences;
 
@@ -24,14 +23,12 @@ public class ConnectionsHistory implements Model {
     public static final String NODE_PORT_NUMBER = "portNumber";
     public static final String NODE_PROTOCOL_SETTINGS = "protocolSettings";
     public static final String NODE_UI_SETTINGS = "uiSettings";
-    private final Logger logger;
 
     private Map<ConnectionParams, ProtocolSettings> protocolSettingsMap;
     private Map<ConnectionParams, UiSettingsData> uiSettingsDataMap;
     LinkedList<ConnectionParams> connections;
 
     public ConnectionsHistory() {
-        logger = Logger.getLogger(getClass().getName());
         init();
         retrieve();
     }
@@ -68,7 +65,6 @@ public class ConnectionsHistory implements Model {
                 if (uniques.contains(cp)) continue; // skip duplicates
                 uniques.add(cp);
                 conns.put(num, cp);
-                logger.finest("deserialialize: " + cp.toPrint());
                 retrieveProtocolSettings(node, cp);
                 retrieveUiSettings(node, cp);
 			}
@@ -82,7 +78,7 @@ public class ConnectionsHistory implements Model {
 				++itemsCount;
 			}
 		} catch (BackingStoreException e) {
-            logger.severe("Cannot retrieve connections history info: " + e.getMessage());
+            e.printStackTrace();
 		}
 	}
 
@@ -93,11 +89,10 @@ public class ConnectionsHistory implements Model {
                 UiSettingsData settings = (UiSettingsData) (new ObjectInputStream(
                         new ByteArrayInputStream(bytes))).readObject();
                 uiSettingsDataMap.put(cp, settings);
-                logger.finest("deserialialize: " + settings);
             } catch (IOException e) {
-                logger.info("Cannot deserialize UiSettings: " + e.getMessage());
+                e.printStackTrace();
             } catch (ClassNotFoundException e) {
-                logger.severe("Cannot deserialize UiSettings : " + e.getMessage());
+				e.printStackTrace();
             }
         }
     }
@@ -110,11 +105,10 @@ public class ConnectionsHistory implements Model {
                         new ByteArrayInputStream(bytes))).readObject();
                 settings.refine();
                 protocolSettingsMap.put(cp, settings);
-                logger.finest("deserialialize: " + settings);
             } catch (IOException e) {
-                logger.info("Cannot deserialize ProtocolSettings: " + e.getMessage());
+				e.printStackTrace();
             } catch (ClassNotFoundException e) {
-                logger.severe("Cannot deserialize ProtocolSettings : " + e.getMessage());
+				e.printStackTrace();
             }
         }
     }
@@ -162,7 +156,7 @@ public class ConnectionsHistory implements Model {
 				connectionsHistoryNode.node(host).removeNode();
 			}
 		} catch (BackingStoreException e) {
-            logger.severe("Cannot remove node: " + e.getMessage());
+			e.printStackTrace();
 		}
     }
 
@@ -181,7 +175,7 @@ public class ConnectionsHistory implements Model {
         try {
 			node.flush();
 		} catch (BackingStoreException e) {
-            logger.severe("Cannot retrieve connections history info: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 
@@ -192,9 +186,8 @@ public class ConnectionsHistory implements Model {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
                 objectOutputStream.writeObject(uiSettingsData);
                 node.putByteArray(NODE_UI_SETTINGS, byteArrayOutputStream.toByteArray());
-                logger.finest("serialized (" + node.name() + ") " + uiSettingsData);
             } catch (IOException e) {
-                logger.severe("Cannot serialize UiSettings: " + e.getMessage());
+				e.printStackTrace();
             }
         }
     }
@@ -206,9 +199,8 @@ public class ConnectionsHistory implements Model {
                 ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
                 objectOutputStream.writeObject(protocolSettings);
                 node.putByteArray(NODE_PROTOCOL_SETTINGS, byteArrayOutputStream.toByteArray());
-                logger.finest("serialized (" + node.name() + ") " + protocolSettings);
             } catch (IOException e) {
-                logger.severe("Cannot serialize ProtocolSettings: " + e.getMessage());
+				e.printStackTrace();
             }
         }
     }
@@ -216,7 +208,6 @@ public class ConnectionsHistory implements Model {
     private void serializeConnectionParams(Preferences node, ConnectionParams connectionParams) {
         node.put(NODE_HOST_NAME, connectionParams.hostName);
         node.putInt(NODE_PORT_NUMBER, connectionParams.getPortNumber());
-        logger.finest("serialized (" + node.name() + ") " + connectionParams.toPrint());
     }
 
     public void reorder(ConnectionParams connectionParams) {

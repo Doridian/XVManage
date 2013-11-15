@@ -42,7 +42,6 @@ import java.net.Socket;
 import java.util.List;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Logger;
 
 /**
 * @author dime at tightvnc.com
@@ -53,7 +52,6 @@ public class SwingRfbConnectionWorker extends SwingWorker<Void, String> implemen
     private ConnectionPresenter presenter;
     private JFrame parentWindow;
     private SwingViewerWindowFactory viewerWindowFactory;
-    private Logger logger;
     private volatile boolean isStoppingProcess;
     private SwingViewerWindow viewerWindow;
     protected String connectionString;
@@ -73,7 +71,6 @@ public class SwingRfbConnectionWorker extends SwingWorker<Void, String> implemen
                 new PasswordChooser(connectionString, parentWindow, this),
                 rfbSettings);
         String message = "Handshaking with remote host";
-        logger.info(message);
         publish(message);
 
         workingProtocol.handshake();
@@ -87,7 +84,6 @@ public class SwingRfbConnectionWorker extends SwingWorker<Void, String> implemen
         this.presenter = presenter;
         this.parentWindow = parentWindow;
         this.viewerWindowFactory = viewerWindowFactory;
-        logger = Logger.getLogger(getClass().getName());
     }
 
 
@@ -114,11 +110,9 @@ public class SwingRfbConnectionWorker extends SwingWorker<Void, String> implemen
 
             presenter.successfulRfbConnection();
         } catch (CancellationException e) {
-            logger.info("Cancelled");
             presenter.showMessage("Cancelled");
             presenter.connectionCancelled();
         } catch (InterruptedException e) {
-            logger.info("Interrupted");
             presenter.showMessage("Interrupted");
             presenter.connectionFailed();
         } catch (ExecutionException ee) {
@@ -129,34 +123,27 @@ public class SwingRfbConnectionWorker extends SwingWorker<Void, String> implemen
             } catch (UnsupportedProtocolVersionException e) {
                 errorTitle = "Unsupported Protocol Version";
                 errorMessage = e.getMessage();
-                logger.severe(errorMessage);
             } catch (UnsupportedSecurityTypeException e) {
                 errorTitle = "Unsupported Security Type";
                 errorMessage = e.getMessage();
-                logger.severe(errorMessage);
             } catch (AuthenticationFailedException e) {
                 errorTitle = "Authentication Failed";
                 errorMessage = e.getMessage();
-                logger.severe(errorMessage);
                 presenter.clearPredefinedPassword();
             } catch (TransportException e) {
 //            if ( ! isAppletStopped) {
                 errorTitle = "Connection Error";
                 errorMessage = "Connection Error: " + e.getMessage();
-                logger.severe(errorMessage);
 //            }
             } catch (IOException e) {
                 errorTitle = "Connection Error";
                 errorMessage = "Connection Error: " + e.getMessage();
-                logger.severe(errorMessage);
             } catch (FatalException e) {
                 errorTitle = "Connection Error";
                 errorMessage = "Connection Error: " + e.getMessage();
-                logger.severe(errorMessage);
             } catch (Throwable e) {
                 errorTitle = "Error";
                 errorMessage = "Error: " + e.getMessage();
-                logger.severe(errorMessage);
             }
             presenter.showReconnectDialog(errorTitle, errorMessage);
             presenter.clearMessage();
@@ -171,7 +158,6 @@ public class SwingRfbConnectionWorker extends SwingWorker<Void, String> implemen
 		}
 		if (isStoppingProcess) return;
 		cleanUpUISessionAndConnection();
-        logger.info("Rfb session stopped: " + reason);
         if (presenter.needReconnection()) {
             SwingUtilities.invokeLater(new Runnable() {
                 @Override

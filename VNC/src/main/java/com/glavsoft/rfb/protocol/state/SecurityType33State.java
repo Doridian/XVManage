@@ -29,8 +29,6 @@ import com.glavsoft.exceptions.UnsupportedSecurityTypeException;
 import com.glavsoft.rfb.protocol.ProtocolContext;
 import com.glavsoft.rfb.protocol.auth.AuthHandler;
 
-import java.util.logging.Logger;
-
 public class SecurityType33State extends SecurityType37State {
 
 	public SecurityType33State(ProtocolContext context) {
@@ -40,9 +38,7 @@ public class SecurityType33State extends SecurityType37State {
 	@Override
 	protected void negotiateAboutSecurityType()
 			throws TransportException, UnsupportedSecurityTypeException {
-        Logger.getLogger(getClass().getName()).info("Get Security Type");
 		int type = reader.readInt32();
-		Logger.getLogger(getClass().getName()).info("Type received: " + type);
 		if (0 == type)
 			// throw exception with reason
 			throw new UnsupportedSecurityTypeException(reader.readString());
@@ -50,7 +46,6 @@ public class SecurityType33State extends SecurityType37State {
 					context.getSettings().authCapabilities);
 		if (typeSelected != null) {
 			setUseSecurityResult(typeSelected);
-			Logger.getLogger(getClass().getName()).info("Type accepted: " + typeSelected.getName());
 		} else
 			throw new UnsupportedSecurityTypeException(
 					"No security types supported. Server sent '" +

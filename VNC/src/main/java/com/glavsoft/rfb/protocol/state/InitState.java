@@ -33,8 +33,6 @@ import com.glavsoft.rfb.encoding.ServerInitMessage;
 import com.glavsoft.rfb.protocol.ProtocolContext;
 import com.glavsoft.rfb.protocol.ProtocolSettings;
 
-import java.util.logging.Logger;
-
 /**
  * ClientInit
  *
@@ -81,7 +79,6 @@ public class InitState extends ProtocolState {
 		context.setFbWidth(serverInitMessage.getFrameBufferWidth());
 		context.setFbHeight(serverInitMessage.getFrameBufferHeight());
 		context.setRemoteDesktopName(serverInitMessage.getName());
-        Logger.getLogger(getClass().getName()).fine(serverInitMessage.toString());
 	}
 
 	protected ServerInitMessage getServerInitMessage() throws TransportException {

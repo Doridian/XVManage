@@ -24,15 +24,14 @@
 
 package com.glavsoft.rfb;
 
+import com.glavsoft.exceptions.TransportException;
+import com.glavsoft.rfb.encoding.EncodingType;
+import com.glavsoft.transport.Reader;
+
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
-import java.util.logging.Logger;
-
-import com.glavsoft.exceptions.TransportException;
-import com.glavsoft.rfb.encoding.EncodingType;
-import com.glavsoft.transport.Reader;
 
 /**
  * Container for Tight extention protocol capabilities
@@ -85,7 +84,6 @@ public class CapabilityContainer {
 	public void read(Reader reader, int count) throws TransportException {
 		while (count-- > 0) {
 			RfbCapabilityInfo capInfoReceived = new RfbCapabilityInfo(reader);
-			Logger.getLogger("com.glavsoft.rfb").fine(capInfoReceived.toString());
 			RfbCapabilityInfo myCapInfo = caps.get(capInfoReceived.getCode());
 			if (myCapInfo != null) {
 				myCapInfo.setEnable(true);
