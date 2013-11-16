@@ -17,7 +17,7 @@ import (
 
 //Gets a free port (might need more smartness soon or something)
 var port_counter int64
-func getLocalPort() int64 {
+func getListenPort() int64 {
 	return (atomic.AddInt64(&port_counter, 1) % 1000) + 19000
 }
 
@@ -76,66 +76,66 @@ func handleJSONRPC(jsonConn net.Conn) {
 		return
 	}
 
-	localPort := getLocalPort()
+	listenPort := getListenPort()
 
-	go listenVNC(localPort, int64(jsonData.Dport), jsonData.Password, jsonData.Tls)
+	go listenVNC(listenPort, int64(jsonData.Dport), jsonData.Password, jsonData.Tls)
 
-	io.WriteString(jsonConn, strconv.FormatInt(localPort, 10))
+	io.WriteString(jsonConn, strconv.FormatInt(listenPort, 10))
 	io.WriteString(jsonConn, "\r\n")
 	jsonConn.Close()
 }
 
 //Listen for exactly one VNC connection on specified target port (ready to proxy to local VNC)
-func listenVNC(localAddrP int64, remoteAddrP int64, password string, useSSL bool) {
-	localAddr := "0.0.0.0:" + strconv.FormatInt(localAddrP, 10)
+func listenVNC(listenPort int64, vncPort int64, password string, useSSL bool) {
+	listenAddr := "0.0.0.0:" + strconv.FormatInt(listenPort, 10)
 
 	//We use all the ListenTCP here to be able to use TCPListener.SetDeadline
-	localTcpAddr, err := net.ResolveTCPAddr("tcp4", localAddr)
-	if localTcpAddr == nil {
-		logout("cannot resolve: %v %s", err, localTcpAddr)
+	listenTcpAddr, err := net.ResolveTCPAddr("tcp4", listenAddr)
+	if listenTcpAddr == nil {
+		logout("cannot resolve: %v %s", err, listenTcpAddr)
 		return
 	}
 
-	local, err := net.ListenTCP("tcp4", localTcpAddr)
-	if local == nil {
-		logout("cannot listen: %v %s", err, localAddr)
+	tcpListener, err := net.ListenTCP("tcp4", listenTcpAddr)
+	if tcpListener == nil {
+		logout("cannot listen: %v %s", err, listenAddr)
 		return
 	}
-	local.SetDeadline(time.Now().Add(time.Duration(60) * time.Second))
+	tcpListener.SetDeadline(time.Now().Add(time.Duration(60) * time.Second))
 
 	//Wrap SSL/TLS if requested
-	listener := net.Listener(local)
+	listener := net.Listener(tcpListener)
 	if useSSL {
 		listener = tls.NewListener(listener, sslConfig)
 	}
 
 	//Accept one connection, then close listener
-	conn, err := listener.Accept()
+	clientConn, err := listener.Accept()
 	listener.Close()
-	if conn == nil {
-		logout("accept failed: %v $s", err, localAddr)
+	if clientConn == nil {
+		logout("accept failed: %v $s", err, listenAddr)
 		return
 	}
 
-	go handleAuth(conn, remoteAddrP, password)
+	go handleAuth(clientConn, vncPort, password)
 }
 
 //Handle VNC authentication and handshaking from the remote
-func handleAuth(local net.Conn, remoteAddrP int64, password string) {
+func handleAuth(clientConn net.Conn, vncPort int64, password string) {
 	passwordBytes := make([]byte, 8)
 	copy(passwordBytes, []byte(password))
 
-	io.WriteString(local, "RFB 003.008\n")
+	io.WriteString(clientConn, "RFB 003.008\n")
 	buf := make([]byte, 12)
-	io.ReadFull(local, buf)
+	io.ReadFull(clientConn, buf)
 
 	//1 auth method present, type 2 (VNC authentication)
-	local.Write([]byte{1, 2})
+	clientConn.Write([]byte{1, 2})
 	//Read auth method response, only accept type 2
 	buf = make([]byte, 1)
-	io.ReadFull(local, buf)
+	io.ReadFull(clientConn, buf)
 	if buf[0] != 2 {
-		local.Close()
+		clientConn.Close()
 		logout("wrong auth type: %v", buf)
 		return
 	}
@@ -143,18 +143,18 @@ func handleAuth(local net.Conn, remoteAddrP int64, password string) {
 	//Make challenge for VNC authentication
 	challenge := make([]byte, 16)
 	rand.Read(challenge)
-	local.Write(challenge)
+	clientConn.Write(challenge)
 	
 	//Read response
 	response := make([]byte, 16)
-	io.ReadFull(local, response)
+	io.ReadFull(clientConn, response)
 
 	//VNC mirrors bits in the password used for DES (http://www.vidarholen.net/contents/junk/vnc.html)
 	mirrorBits(passwordBytes)
 	//Create cipher from password (VNC auth = DES encrypt challenge with password)
 	responseCipher, err := des.NewCipher(passwordBytes)
 	if responseCipher == nil {
-		local.Close()	
+		clientConn.Close()	
 		logout("cipher failed: %v", err)
 		return
 	}
@@ -166,46 +166,46 @@ func handleAuth(local net.Conn, remoteAddrP int64, password string) {
 
 	//Compare challenge with decrypted challenge
 	if bytes.Equal(challengeDecrypted, challenge) {
-		go forward(local, remoteAddrP)
+		go forward(clientConn, vncPort)
 	} else {
 		//U32 for "failed" (0 is okay), then U32 for length of reason
-		local.Write([]byte{0,0,0,1, 0,0,0,14})
-		io.WriteString(local, "Wrong password") //len = 5 + 1 + 8 = 14
-		local.Close()
+		clientConn.Write([]byte{0,0,0,1, 0,0,0,14})
+		io.WriteString(clientConn, "Wrong password") //len = 5 + 1 + 8 = 14
+		clientConn.Close()
 		logout("auth failed %v %v %v\n", challenge, challengeDecrypted, passwordBytes)
 		return
 	}
 }
 
 //Establish connection to target VNC server and do basic handshaking
-func forward(local net.Conn, remoteAddrP int64) {
-	remoteAddr := "127.0.0.1:" + strconv.FormatInt(remoteAddrP, 10)
-	remote, err := net.Dial("tcp", remoteAddr)
-	if remote == nil {
-		local.Close()
+func forward(clientConn net.Conn, vncPort int64) {
+	vncAddr := "127.0.0.1:" + strconv.FormatInt(vncPort, 10)
+	vncConn, err := net.Dial("tcp", vncAddr)
+	if vncConn == nil {
+		clientConn.Close()
 		logout("remote dial failed: %v", err)
 		return
 	}
 
 	//Read version string from VNC server
 	buf := make([]byte, 12)
-	io.ReadFull(remote, buf)
+	io.ReadFull(vncConn, buf)
 	//Reply with v3.8 (the version we use)
-	io.WriteString(local, "RFB 003.008\n")
+	io.WriteString(vncConn, "RFB 003.008\n")
 
 	//Read 1 byte (count of auth methods)
 	buf = make([]byte, 1)
-	io.ReadFull(remote, buf)
+	io.ReadFull(vncConn, buf)
 	//Read auth methods
 	buf = make([]byte, buf[0])
-	io.ReadFull(remote, buf)
+	io.ReadFull(vncConn, buf)
 	
 	//use auth method 1 (no authentication)
-	remote.Write([]byte{1})
+	vncConn.Write([]byte{1})
 
 	//Real proxying here
-	go io.Copy(local, remote)
-	go io.Copy(remote, local)
+	go io.Copy(clientConn, vncConn)
+	go io.Copy(vncConn, clientConn)
 }
 
 func fatal(s string, a ... interface{}) {
