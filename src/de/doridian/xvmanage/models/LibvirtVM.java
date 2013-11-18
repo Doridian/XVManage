@@ -41,15 +41,15 @@ public class LibvirtVM {
 
 	public LibvirtVM(VMNode vmNode, JSONObject vmStatus) {
 		receivedVMStatus(vmNode, vmStatus);
-		setName((String)vmStatus.get("name"));
+		setName((String)vmStatus.get("Name"));
 	}
 
 	public void receivedVMStatus(VMNode vmNode, JSONObject vmStatus) {
 		node = vmNode;
-		cpuUsage = ((Number)vmStatus.get("cpuUsage")).floatValue();
-		ramUsage = ((Number)vmStatus.get("ramUsage")).floatValue();
-		vcpus = ((Number)vmStatus.get("vcpus")).intValue();
-		isPoweredOn = (Boolean)vmStatus.get("isPoweredOn");
+		cpuUsage = ((Number)vmStatus.get("CpuUsage")).floatValue();
+		ramUsage = ((Number)vmStatus.get("RamUsage")).floatValue();
+		vcpus = ((Number)vmStatus.get("Vcpus")).intValue();
+		isPoweredOn = (Boolean)vmStatus.get("IsPoweredOn");
 	}
 
 	protected final static HashMap<String, LibvirtVM> vmStorage = new HashMap<String, LibvirtVM>();
@@ -78,26 +78,26 @@ public class LibvirtVM {
 
 	public String processCommand(String command) throws IOException {
 		JSONObject res = new JSONObject();
-		res.put("target", "vm");
-		res.put("action", command);
-		res.put("vm", getName());
-		return (String)XVMAPI.apiCall(node, res).get("result");
+		res.put("Target", "vm");
+		res.put("Action", command);
+		res.put("Vm", getName());
+		return (String)XVMAPI.apiCall(node, res).get("Result");
 	}
 
 	public String doVNC(boolean ssl) throws IOException {
 		JSONObject res = new JSONObject();
-		res.put("target", "vm");
-		res.put("action", "vnc");
-		res.put("ssl", ssl);
-		res.put("vm", getName());
+		res.put("Target", "vm");
+		res.put("Action", "vnc");
+		res.put("Ssl", ssl);
+		res.put("Vm", getName());
 
 		res = XVMAPI.apiCall(node, res);
 
 		JSONObject result = new JSONObject();
 		result.put("host", node.getIp());
-		result.put("password", (String)res.get("password"));
+		result.put("password", (String)res.get("Password"));
 		result.put("ssl", ssl);
-		result.put("port", ((Number)res.get("port")).intValue());
+		result.put("port", ((Number)res.get("Port")).intValue());
 		return result.toJSONString();
 	}
 }

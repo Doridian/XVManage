@@ -16,7 +16,7 @@ public class VMNode {
 
 		for(Object obj : Configuration.getArray("nodes")) {
 			JSONObject jObj = (JSONObject)obj;
-			nodes.add(new VMNode((String)jObj.get("name"), (String)jObj.get("ip")));
+			nodes.add(new VMNode((String)jObj.get("Name"), (String)jObj.get("ip")));
 		}
 
 		new Thread() {
@@ -58,9 +58,9 @@ public class VMNode {
 
 	public synchronized void refreshVMs() throws IOException {
 		JSONObject query = new JSONObject();
-		query.put("target", "vm");
-		query.put("action", "list");
-		JSONArray array = (JSONArray)XVMAPI.apiCall(this, query).get("result");
+		query.put("Target", "vm");
+		query.put("Action", "list");
+		JSONArray array = (JSONArray)XVMAPI.apiCall(this, query).get("Result");
 
 		for(LibvirtVM vm : LibvirtVM.vmStorage.values()) {
 			vm.canBeRunRemoved = true;
@@ -68,7 +68,7 @@ public class VMNode {
 
 		for(Object obj : array) {
 			JSONObject jObj = (JSONObject)obj;
-			LibvirtVM vm = LibvirtVM.getByName((String) jObj.get("name"));
+			LibvirtVM vm = LibvirtVM.getByName((String) jObj.get("Name"));
 			if(vm == null)
 				vm = new LibvirtVM(this, jObj);
 			else

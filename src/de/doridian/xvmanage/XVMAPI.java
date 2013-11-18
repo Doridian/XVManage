@@ -12,7 +12,7 @@ public class XVMAPI {
 	private static final String API_KEY = Configuration.getString("apiKey");
 
 	public static JSONObject apiCall(VMNode node, JSONObject payload) throws IOException {
-		payload.put("key", API_KEY);
+		payload.put("Key", API_KEY);
 
 		try {
 			Socket socket = SSLSocketFactory.getDefault().createSocket(node.getIp(), 1532);
