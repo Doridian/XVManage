@@ -26,7 +26,7 @@ func maintainVMList() {
 	log.Println("Refreshing VM stats")
 
 	virConn := getLibvirtConnection()
-	defer virConn.CloseConnection()
+	defer libvirtClose(virConn)
 	
 	virDomains, err := virConn.ListDomains()
 	if err != nil {
@@ -36,7 +36,7 @@ func maintainVMList() {
 	
 	vmDomains.Lock()
 	defer vmDomains.Unlock()
-	
+
 	for _, vmDomain := range vmDomains.m {
 		vmDomain.removePossible = true
 	}

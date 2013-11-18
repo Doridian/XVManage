@@ -50,9 +50,6 @@ func main() {
 		log.Println("Load SSL: OK")
 	}
 
-	//sslConfig := new(tls.Config)
-	//sslConfig.Certificates = []tls.Certificate{sslCertificates}
-	
 	nodeListener, err := net.Listen("tcp4", "0.0.0.0:1532")
 	if err != nil {
 		log.Panicf("Node API: cannot listen: %v", err)

@@ -21,6 +21,17 @@ type VMDomain struct {
 	lastCheck time.Time
 }
 
+func libvirtClose(virConn libvirt.VirConnection) {
+	closeRes := 1
+	var err error
+	for closeRes > 0 {
+		closeRes, err = virConn.CloseConnection()
+		if err != nil {
+			log.Printf("close: %v", err)
+		}
+	}
+}
+
 func initializeLibvirt() {
 	vmDomains.m = make(map[string]VMDomain)
 	maintainVMList()
@@ -56,8 +67,8 @@ func vmGetStatus(name string) VMStatus {
 
 func vmProcessCommand(name string, command string) {
 	virConn := getLibvirtConnection()
-	defer virConn.CloseConnection()
-	
+	defer libvirtClose(virConn)	
+
 	virDomain := getLibvirtDomain(virConn, name)
 	switch command {
 		case "reset":

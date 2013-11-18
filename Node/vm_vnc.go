@@ -21,8 +21,8 @@ type VIRXMLRes struct {
 
 func vmGetVNCPort(name string) int64 {
 	virConn := getLibvirtConnection()
-	defer virConn.CloseConnection()
-	
+	defer libvirtClose(virConn)
+
 	virDomain := getLibvirtDomain(virConn, name)
 	virStrXML, _ := virDomain.GetXMLDesc(0)
 	var virXML VIRXMLRes

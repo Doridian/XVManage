@@ -45,7 +45,7 @@ type VMStatus struct {
 
 func handleNodeConn(nodeConn net.Conn) {
 	defer nodeConn.Close()
-	
+
 	buf := make([]byte, 4)
 	io.ReadFull(nodeConn, buf)
 	bufLenByteBuf := bytes.NewBuffer(buf)
