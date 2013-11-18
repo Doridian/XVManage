@@ -16,7 +16,7 @@ public class VMNode {
 
 		for(Object obj : Configuration.getArray("nodes")) {
 			JSONObject jObj = (JSONObject)obj;
-			nodes.add(new VMNode((String)jObj.get("Name"), (String)jObj.get("ip")));
+			nodes.add(new VMNode((String)jObj.get("name"), (String)jObj.get("ip")));
 		}
 
 		new Thread() {
